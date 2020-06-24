@@ -5,4 +5,5 @@
     <color name="colorAccent">#03DAC5</color>
 
     <color name="textColorGold">#FFC107</color>
+    <color name="textColorBlueLink">#074DFF</color>
 </resources>
