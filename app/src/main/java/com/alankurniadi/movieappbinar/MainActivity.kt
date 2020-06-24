@@ -16,11 +16,16 @@ import org.json.JSONObject
 import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var moviePopulerAdapter: MoviePopulerAdapter
     private lateinit var moviePlayingNowAdapter: MoviePlayingNowAdapter
+
     private val listPopuler = ArrayList<Movie>()
     private val listPlayingNow = ArrayList<Movie>()
+
     private val apiKey = "54f1a575ff34a72f82134bf90ea5ff4f"
+
+    private val TAG = MainActivity::class.java.simpleName
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +39,12 @@ class MainActivity : AppCompatActivity() {
         moviePlayingNowAdapter = MoviePlayingNowAdapter()
         moviePlayingNowAdapter.notifyDataSetChanged()
 
+        //third adapter
+
+
+        //fourth adapter
+
+
         recyclerViewPopuler()
         recyclerViewPlayingNow()
 
@@ -41,9 +52,6 @@ class MainActivity : AppCompatActivity() {
         getDataMoviePopuler()
         getDataMoviePlaynow()
     }
-
-
-
 
     private fun recyclerViewPopuler() {
         //rv_first_MultiSnap.setHasFixedSize(true)
@@ -57,9 +65,20 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    private fun recyclerViewPlayingNow() {
+        //rv_second_MultiSnap.setHasFixedSize(true)
+        rv_second_MultiSnap.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        rv_second_MultiSnap.adapter = moviePlayingNowAdapter
+
+        moviePlayingNowAdapter.setOnItemClickCallback(object : MoviePlayingNowAdapter.OnItemClickCallback{
+            override fun onItemClicked(data: Movie) {
+                TODO("Not yet implemented")
+            }
+        })
+    }
+
     private fun getDataMoviePopuler() {
         val url = "https://api.themoviedb.org/3/movie/popular?api_key=$apiKey&language=en-US"
-
         val client = AsyncHttpClient()
         client.get(url, object : AsyncHttpResponseHandler(){
             override fun onSuccess(
@@ -90,7 +109,7 @@ class MainActivity : AppCompatActivity() {
                     moviePopulerAdapter.setData(listPopuler)
                     showLoading(false)
                 } catch (e: Exception) {
-                    Log.d("Exception", e.message.toString())
+                    Log.d(TAG, "Movie Populer"+e.message.toString())
                 }
             }
 
@@ -100,29 +119,63 @@ class MainActivity : AppCompatActivity() {
                 responseBody: ByteArray?,
                 error: Throwable?
             ) {
-                Log.d("onFailure", error?.message.toString())
+                Log.d(TAG, "Movie Populer"+error?.message.toString())
             }
         })
     }
 
     private fun getDataMoviePlaynow() {
         val url = "https://api.themoviedb.org/3/movie/now_playing?api_key=$apiKey&language=en-US"
-    }
+        val client = AsyncHttpClient()
+        client.get(url, object : AsyncHttpResponseHandler(){
+            override fun onSuccess(
+                statusCode: Int,
+                headers: Array<out Header>?,
+                responseBody: ByteArray
+            ) {
+                try {
+                    val result = String(responseBody)
+                    val responseObjects = JSONObject(result)
+                    val movieResults = responseObjects.getJSONArray("results")
 
-    private fun recyclerViewPlayingNow() {
-        //rv_second_MultiSnap.setHasFixedSize(true)
-        rv_second_MultiSnap.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        rv_second_MultiSnap.adapter = moviePlayingNowAdapter
+                    showLoading2(true)
+                    for (i in 0 until movieResults.length()) {
+                        val movieAPI = movieResults.getJSONObject(i)
+                        val movie = Movie()
+                        movie.apply {
+                            id = movieAPI.getInt("id")
+                            poster_path = movieAPI.getString("poster_path")
+                            backround_path = movieAPI.getString("backdrop_path")
+                            title = movieAPI.getString("title")
+                            vote_average = movieAPI.getInt("vote_average")
+                            overview = movieAPI.getString("overview")
+                            release_date = movieAPI.getString("release_date")
+                        }
+                        listPlayingNow.add(movie)
+                    }
+                    moviePlayingNowAdapter.setData(listPlayingNow)
+                    showLoading2(false)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Movie Playing"+e.message.toString())
+                }
+            }
 
-        moviePlayingNowAdapter.setOnItemClickCallback(object : MoviePlayingNowAdapter.OnItemClickCallback{
-            override fun onItemClicked(data: Movie) {
-                TODO("Not yet implemented")
+            override fun onFailure(
+                statusCode: Int,
+                headers: Array<out Header>?,
+                responseBody: ByteArray?,
+                error: Throwable?
+            ) {
+                Log.d(TAG, "Movie Playing"+error?.message.toString())
             }
         })
     }
 
     private fun showLoading(state: Boolean) {
-        if (state) progress_bar.visibility = View.VISIBLE else progress_bar.visibility = View.INVISIBLE
-        if (state) progress_bar2.visibility = View.VISIBLE else progress_bar2.visibility = View.INVISIBLE
+        if (state) progress_bar.visibility = View.VISIBLE else progress_bar.visibility = View.GONE
+        //if (state) progress_bar2.visibility = View.VISIBLE else progress_bar2.visibility = View.GONE
+    }
+    private fun showLoading2(state: Boolean) {
+        if (state) progress_bar2.visibility = View.VISIBLE else progress_bar2.visibility = View.GONE
     }
 }

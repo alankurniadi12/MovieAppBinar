@@ -8,9 +8,6 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
-
-
         <LinearLayout
             xmlns:app="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
@@ -30,7 +27,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/progress_bar"
-                android:visibility="gone"
                 android:layout_gravity="center"/>
             <com.takusemba.multisnaprecyclerview.MultiSnapRecyclerView
                 android:layout_width="match_parent"
@@ -48,12 +44,12 @@
                 android:id="@+id/tv_playing_now_main"
                 android:text="Playing Now"
                 android:textSize="18sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:layout_marginTop="8dp"/>
             <ProgressBar
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/progress_bar2"
-                android:visibility="gone"
                 android:layout_gravity="center"/>
             <com.takusemba.multisnaprecyclerview.MultiSnapRecyclerView
                 android:layout_width="match_parent"
@@ -64,9 +60,55 @@
                 app:msrv_gravity="center"
                 app:msrv_speed_ms_per_inch="120"
                 app:msrv_interval="2"/>
-        </LinearLayout>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_upcoming_main"
+                android:text="Upcoming"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp"/>
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/progress_bar3"
+                android:layout_gravity="center"/>
+            <com.takusemba.multisnaprecyclerview.MultiSnapRecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/rv_third_MultiSnap"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal"
+                app:msrv_gravity="center"
+                app:msrv_speed_ms_per_inch="120"
+                app:msrv_interval="3"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_toprate_main"
+                android:text="Top Rate"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp"/>
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/progress_bar4"
+                android:layout_gravity="center"/>
+            <com.takusemba.multisnaprecyclerview.MultiSnapRecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/rv_fourth_MultiSnap"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal"
+                app:msrv_gravity="center"
+                app:msrv_speed_ms_per_inch="120"
+                app:msrv_interval="4"/>
+        </LinearLayout>
     </RelativeLayout>
+
 
 </ScrollView>
 
