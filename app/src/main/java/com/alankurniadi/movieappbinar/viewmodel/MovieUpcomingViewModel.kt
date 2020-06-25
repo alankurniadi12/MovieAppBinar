@@ -4,24 +4,22 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.alankurniadi.movieappbinar.MainActivity
 import com.alankurniadi.movieappbinar.modeldata.Movie
 import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.AsyncHttpResponseHandler
 import cz.msebera.android.httpclient.Header
 import org.json.JSONObject
 
-class MoviePopulerViewModel: ViewModel() {
-
-    private val TAG = MoviePopulerViewModel::class.java.simpleName
+class MovieUpcomingViewModel: ViewModel() {
+    private val TAG = MovieUpcomingViewModel::class.java.simpleName
 
     val listItems = ArrayList<Movie>()
     private val apiKey = "54f1a575ff34a72f82134bf90ea5ff4f"
 
-    val listPopuler = MutableLiveData<ArrayList<Movie>>()
+    val listUpcoming = MutableLiveData<ArrayList<Movie>>()
 
-    fun setDataMoviePopuler() {
-        val url = "https://api.themoviedb.org/3/movie/popular?api_key=$apiKey&language=en-US"
+    fun setDataMovieUpcoming() {
+        val url = "https://api.themoviedb.org/3/movie/upcoming?api_key=$apiKey&language=en-US"
         val client = AsyncHttpClient()
         client.get(url, object : AsyncHttpResponseHandler(){
             override fun onSuccess(
@@ -48,9 +46,9 @@ class MoviePopulerViewModel: ViewModel() {
                         }
                         listItems.add(movie)
                     }
-                    listPopuler.postValue(listItems)
+                    listUpcoming.postValue(listItems)
                 } catch (e: Exception) {
-                    Log.d(TAG, "Movie Populer"+e.message.toString())
+                    Log.e(TAG, "Upcoming"+e.message.toString())
                 }
             }
 
@@ -60,12 +58,13 @@ class MoviePopulerViewModel: ViewModel() {
                 responseBody: ByteArray?,
                 error: Throwable?
             ) {
-                Log.d(TAG, "Movie Populer"+error?.message.toString())
+                Log.d(TAG, "Upcoming"+error?.message.toString())
             }
         })
+
     }
 
-    fun getPopulerMovie(): LiveData<ArrayList<Movie>> {
-        return listPopuler
+    fun getUpcoming(): LiveData<ArrayList<Movie>> {
+        return listUpcoming
     }
 }

@@ -15,7 +15,10 @@ import com.alankurniadi.movieappbinar.adapter.MovieTopRateAdapter
 import com.alankurniadi.movieappbinar.adapter.MovieUpcomingAdapter
 import com.alankurniadi.movieappbinar.detail.DetailActivity
 import com.alankurniadi.movieappbinar.modeldata.Movie
+import com.alankurniadi.movieappbinar.viewmodel.MoviePlayingNowViewModel
 import com.alankurniadi.movieappbinar.viewmodel.MoviePopulerViewModel
+import com.alankurniadi.movieappbinar.viewmodel.MovieTopRateViewModel
+import com.alankurniadi.movieappbinar.viewmodel.MovieUpcomingViewModel
 import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.AsyncHttpResponseHandler
 import cz.msebera.android.httpclient.Header
@@ -31,6 +34,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var movieTopRateAdapter: MovieTopRateAdapter
 
     private lateinit var moviePopulerViewModel: MoviePopulerViewModel
+    private lateinit var moviePlayingNowViewModel: MoviePlayingNowViewModel
+    private lateinit var movieUpcomingViewModel: MovieUpcomingViewModel
+    private lateinit var movieTopRateViewModel: MovieTopRateViewModel
 
     private val listPopuler = ArrayList<Movie>()
     private val listPlayingNow = ArrayList<Movie>()
@@ -46,19 +52,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //first adapter
+        //initsialize adapter
         moviePopulerAdapter = MoviePopulerAdapter()
         moviePopulerAdapter.notifyDataSetChanged()
 
-        //second adapter
         moviePlayingNowAdapter = MoviePlayingNowAdapter()
         moviePlayingNowAdapter.notifyDataSetChanged()
 
-        //third adapter
         movieUpcomingAdapter = MovieUpcomingAdapter()
         movieUpcomingAdapter.notifyDataSetChanged()
 
-        //fourth adapter
         movieTopRateAdapter = MovieTopRateAdapter()
         movieTopRateAdapter.notifyDataSetChanged()
 
@@ -69,8 +72,6 @@ class MainActivity : AppCompatActivity() {
         recyclerViewTopRate()
 
         //get API
-
-        //getDataMoviePopuler()
         moviePopulerViewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory()).get(MoviePopulerViewModel::class.java)
         moviePopulerViewModel.setDataMoviePopuler()
         moviePopulerViewModel.getPopulerMovie().observe(this, Observer { dataPopuler ->
@@ -80,9 +81,36 @@ class MainActivity : AppCompatActivity() {
                 showLoading(false)
             }
         })
-        getDataMoviePlaynow()
-        getDataMovieUpcoming()
-        getDataMovieTopRate()
+
+        moviePlayingNowViewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory()).get(MoviePlayingNowViewModel::class.java)
+        moviePlayingNowViewModel.setDataMoviePlayingNow()
+        moviePlayingNowViewModel.getPlayingNowMoview().observe(this, Observer { dataPlayingNow ->
+            if (dataPlayingNow != null) {
+                showLoading2(true)
+                moviePlayingNowAdapter.setData(dataPlayingNow)
+                showLoading2(false)
+            }
+        })
+
+        movieUpcomingViewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory()).get(MovieUpcomingViewModel::class.java)
+        movieUpcomingViewModel.setDataMovieUpcoming()
+        movieUpcomingViewModel.getUpcoming().observe(this, Observer { dataUpcoming ->
+            if (dataUpcoming != null) {
+                showLoading3(true)
+                movieUpcomingAdapter.setData(dataUpcoming)
+                showLoading3(false)
+            }
+        })
+
+        movieTopRateViewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory()).get(MovieTopRateViewModel::class.java)
+        movieTopRateViewModel.setDataMovieTopRate()
+        movieTopRateViewModel.getTopRate().observe(this, Observer { dataTopRate ->
+            if (dataTopRate != null) {
+                showLoading4(true)
+                movieTopRateAdapter.setData(dataTopRate)
+                showLoading4(false)
+            }
+        })
     }
 
     private fun recyclerViewPopuler() {
@@ -105,7 +133,10 @@ class MainActivity : AppCompatActivity() {
 
         moviePlayingNowAdapter.setOnItemClickCallback(object : MoviePlayingNowAdapter.OnItemClickCallback{
             override fun onItemClicked(data: Movie) {
-                TODO("Not yet implemented")
+                val intent = Intent(this@MainActivity, DetailActivity::class.java)
+                intent.putExtra(DetailActivity.EXTRA_DATA, data)
+                startActivity(intent)
+                Toast.makeText(this@MainActivity, "${data.title}", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -116,7 +147,10 @@ class MainActivity : AppCompatActivity() {
 
         movieUpcomingAdapter.setOnItemClickCallback(object : MovieUpcomingAdapter.OnItemClickCallback{
             override fun onItemClicked(data: Movie) {
-                TODO("Not yet implemented")
+                val intent = Intent(this@MainActivity, DetailActivity::class.java)
+                intent.putExtra(DetailActivity.EXTRA_DATA, data)
+                startActivity(intent)
+                Toast.makeText(this@MainActivity, "${data.title}", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -127,106 +161,16 @@ class MainActivity : AppCompatActivity() {
 
         movieTopRateAdapter.setOnItemClickCallback(object : MovieTopRateAdapter.OnItemClickCallback {
             override fun onItemClicked(data: Movie) {
-                TODO("Not yet implemented")
+                val intent = Intent(this@MainActivity, DetailActivity::class.java)
+                intent.putExtra(DetailActivity.EXTRA_DATA, data)
+                startActivity(intent)
+                Toast.makeText(this@MainActivity, "${data.title}", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
-    private fun getDataMoviePlaynow() {
-        val url = "https://api.themoviedb.org/3/movie/now_playing?api_key=$apiKey&language=en-US"
-        val client = AsyncHttpClient()
-        client.get(url, object : AsyncHttpResponseHandler(){
-            override fun onSuccess(
-                statusCode: Int,
-                headers: Array<out Header>?,
-                responseBody: ByteArray
-            ) {
-                try {
-                    val result = String(responseBody)
-                    val responseObjects = JSONObject(result)
-                    val movieResults = responseObjects.getJSONArray("results")
 
-                    showLoading2(true)
-                    for (i in 0 until movieResults.length()) {
-                        val movieAPI = movieResults.getJSONObject(i)
-                        val movie = Movie()
-                        movie.apply {
-                            id = movieAPI.getInt("id")
-                            poster_path = movieAPI.getString("poster_path")
-                            backround_path = movieAPI.getString("backdrop_path")
-                            title = movieAPI.getString("title")
-                            vote_average = movieAPI.getInt("vote_average")
-                            overview = movieAPI.getString("overview")
-                            release_date = movieAPI.getString("release_date")
-                        }
-                        listPlayingNow.add(movie)
-                    }
-                    moviePlayingNowAdapter.setData(listPlayingNow)
-                    showLoading2(false)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Movie Playing"+e.message.toString())
-                }
-            }
-
-            override fun onFailure(
-                statusCode: Int,
-                headers: Array<out Header>?,
-                responseBody: ByteArray?,
-                error: Throwable?
-            ) {
-                Log.d(TAG, "Movie Playing"+error?.message.toString())
-            }
-        })
-    }
-
-    private fun getDataMovieUpcoming() {
-        val url = "https://api.themoviedb.org/3/movie/upcoming?api_key=$apiKey&language=en-US"
-        val client = AsyncHttpClient()
-        client.get(url, object : AsyncHttpResponseHandler(){
-            override fun onSuccess(
-                statusCode: Int,
-                headers: Array<out Header>?,
-                responseBody: ByteArray
-            ) {
-                try {
-                    val result = String(responseBody)
-                    val responseObjects = JSONObject(result)
-                    val movieResults = responseObjects.getJSONArray("results")
-
-                    showLoading3(true)
-                    for (i in 0 until movieResults.length()) {
-                        val movieAPI = movieResults.getJSONObject(i)
-                        val movie = Movie()
-                        movie.apply {
-                            id = movieAPI.getInt("id")
-                            poster_path = movieAPI.getString("poster_path")
-                            backround_path = movieAPI.getString("backdrop_path")
-                            title = movieAPI.getString("title")
-                            vote_average = movieAPI.getInt("vote_average")
-                            overview = movieAPI.getString("overview")
-                            release_date = movieAPI.getString("release_date")
-                        }
-                        listUpcoming.add(movie)
-                    }
-                    movieUpcomingAdapter.setData(listUpcoming)
-                    showLoading3(false)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Movie Upcoming"+e.message.toString())
-                }
-            }
-
-            override fun onFailure(
-                statusCode: Int,
-                headers: Array<out Header>?,
-                responseBody: ByteArray?,
-                error: Throwable?
-            ) {
-                Log.d(TAG, "Movie Upcoming"+error?.message.toString())
-            }
-        })
-    }
-
-    private fun getDataMovieTopRate() {
+    /*private fun getDataMovieTopRate() {
         val url = "https://api.themoviedb.org/3/movie/top_rated?api_key=$apiKey&language=en-US"
         val client = AsyncHttpClient()
         client.get(url, object : AsyncHttpResponseHandler(){
@@ -271,7 +215,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d(TAG, "Movie Top Rate"+error?.message.toString())
             }
         })
-    }
+    }*/
 
     //loading
     fun showLoading(state: Boolean) {
